@@ -41,10 +41,19 @@ module RailsJQueryAutocomplete
         like_clause = (postgres?(model) ? 'ILIKE' : 'LIKE')
           
         if options[:hstore]
-          ["LOWER(#{cast_text[0]}#{table_name}.#{method} -> '#{options[:hstore][:key]}'#{cast_text[1]}) LIKE ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
+          where_clause = ["LOWER(#{cast_text[0]}#{table_name}.#{method} -> '#{options[:hstore][:key]}'#{cast_text[1]}) LIKE ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
         
         else
-          ["LOWER(#{cast_text[0]}#{table_name}.#{method}#{cast_text[1]}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
+          where_clause = ["LOWER(#{cast_text[0]}#{table_name}.#{method}#{cast_text[1]}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
+          
+          if options[:search_additional_columns]
+            options[:search_additional_columns].each do |column| 
+              where_clause[0] += " OR LOWER(#{cast_text[0]}#{table_name}.#{column.to_s}#{cast_text[1]}) #{like_clause} ?"
+              where_clause << "#{(is_full_search ? '%' : '')}#{term.downcase}%"
+            end
+          end
+
+          return where_clause
         end
       end
 
