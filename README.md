@@ -220,7 +220,13 @@ Autocomplete uses Yajl as JSON encoder/decoder, but you can specify your own
     
 #### :is_int
 If you use autocomplete for a column of the type integer you have to specify this using this option:
+
   `:is_int => true`
+  
+#### :additional_columns
+Sometimes you might want to search not only one but multiple columns:
+
+  `:additional_columns => [:song_title, :album_title]`
 
 ### View
 
